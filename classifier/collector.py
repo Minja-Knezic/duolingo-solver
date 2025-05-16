@@ -13,10 +13,11 @@ from datetime import datetime
 save_folder = "training_data"
 
 # Hotkeys
-match_words_hotkey = "F1"
-type_sentence_hotkey = "F2"
-fill_blank_hotkey = "F3"
-choose_words_hotkey = "F4"
+match_words_hotkey = "end" # 1
+type_sentence_hotkey = "down" # 2
+fill_blank_hotkey = "page down" # 3
+choose_words_hotkey = "left" # 4
+select_meaning_hotkey = "clear" # 5
 
 crop_window_hotkey = "F8"
 screenshot_hotkey = "F9"
@@ -150,6 +151,16 @@ def main():
                 screenshot = pyautogui.screenshot(region=region)
                 file_count = len([f for f in os.listdir(f"{save_folder}/choose_words") if f.endswith(".png")])
                 filename = os.path.join(save_folder, f"choose_words/choose_words_{file_count}.png")
+
+                screenshot.save(filename)
+                time.sleep(0.2)  
+                print(f"✅ Screenshot saved: {filename}")
+                # Add your logic here
+            elif event.name == select_meaning_hotkey.lower():
+                print("📖 Select meaning hotkey pressed.")
+                screenshot = pyautogui.screenshot(region=region)
+                file_count = len([f for f in os.listdir(f"{save_folder}/select_meaning") if f.endswith(".png")])
+                filename = os.path.join(save_folder, f"select_meaning/select_meaning_{file_count}.png")
 
                 screenshot.save(filename)
                 time.sleep(0.2)  
