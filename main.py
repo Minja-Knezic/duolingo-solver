@@ -6,8 +6,13 @@ import keyboard
 import pygetwindow
 import os
 from datetime import datetime
+import torch 
+from torchvision import transforms
 
 from ocr import extract_text_from_image
+
+from classifier.cnn_model import SimpleCNN
+
 
 # === CONFIG ===
 save_folder = "screenshots"
@@ -16,14 +21,13 @@ screenshot_hotkey = "F9"
 exit_hotkey = "F10"
 
 
-# === SETUP ===
+
 os.makedirs(save_folder, exist_ok=True)
 region = []
 
-# === STEP 1: Select Region via GUI ===
+
 print("🔲 Please select a region by dragging the mouse.")
 
-# Take full screen screenshot as background for selection
 screen = pyautogui.screenshot()
 screen = cv2.cvtColor(np.array(screen), cv2.COLOR_RGB2BGR)
 
@@ -87,13 +91,27 @@ def main():
                 screenshot = pyautogui.screenshot(region=region)
                 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
                 filename = os.path.join(save_folder, f"screenshot_{timestamp}.png")
-                screenshot.save(filename)
-                time.sleep(0.2)  
-                print(f"✅ Screenshot saved: {filename}")
+                
+                transform = transforms.Compose([
+                    transforms.Grayscale(num_output_channels=1),
+                    transforms.Resize((64, 64)),
+                    transforms.ToTensor(),
+                    transforms.Normalize(mean=[0.5], std=[0.5])
+                ])
+                input_tensor = transform(screenshot).unsqueeze(0)
 
-                text = extract_text_from_image(screenshot)
-                print("📝 Extracted text:")
-                print(text)
+
+                model = SimpleCNN()
+                model.load_state_dict(torch.load("classifier/duolingo_cnn.pth"))
+                model.eval()
+                
+                classes = ['choose words', 'fill blank', 'select meaning', 'type sentence']  
+                with torch.no_grad():
+                    output = model(input_tensor)
+                    predicted_class = torch.argmax(output, dim=1).item()
+                    print(f"🖼️ Predicted class: {classes[predicted_class]}")
+                time.sleep(0.2)  
+                
 
             elif event.name == exit_hotkey.lower():
                 print("🔴 Exiting...")
