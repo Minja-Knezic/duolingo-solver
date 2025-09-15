@@ -3,3 +3,4 @@ __pycache__/
 screenshots/
 classifier/training_data/
 box_model/training_data/
+.env

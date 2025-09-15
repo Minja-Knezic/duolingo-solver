@@ -8,10 +8,13 @@ import os
 from datetime import datetime
 import torch 
 from torchvision import transforms
+import requests
 
 from ocr import extract_text_from_image
 
 from classifier.cnn_model import SimpleCNN
+
+from dotenv import load_dotenv
 
 
 # === CONFIG ===
@@ -77,6 +80,53 @@ def create_crop_window():
     region = (left, top, width, height)
     return region
 
+def gen_message(content,type):
+    message = "You are solving a Duolingo excercise. "
+    if type == 0:
+        message+= ("Write the following sentence in English, using the words given below: "
+        f"{content}\n"
+        "\nInstruction: Answer the question as if you are a Duolingo user. Only provide the direct answer without extra explanation."
+        "There are extra words you don't need. You may only use each word once per number of appearances."
+    )
+    if type == 1:  
+        message += (
+        "Complete the following sentence by filling in the missing word(s): "
+        f"{content}\n"
+        "Instruction: Provide ONLY the missing word(s) as the answer, nothing else."
+    )
+    if type == 2:  
+        message += (
+        "Select the correct meaning of the given word from the provided options: "
+        f"{content}\n"
+        "Instruction: Answer ONLY with the correct option exactly as given (no explanations)."
+    )
+    if type == 3:  
+        message += (
+        "Translate the following sentence into English: "
+        f"{content}\n"
+        "Instruction: Provide ONLY the translation, nothing else."
+    )
+    return message
+
+load_dotenv()
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+def send_to_groq(content: str, type):
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {"Authorization": f"Bearer {GROQ_API_KEY}"}
+    message = gen_message(content,type)
+    print(message)
+    payload = {
+        "model": "llama-3.3-70b-versatile",  
+        "messages": [{"role": "user", "content":message}]
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    print("Response: ",response.json()["choices"][0]["message"]["content"])
+    #return response.json()
+
+
 
 def main():
     region = create_crop_window()
@@ -110,6 +160,9 @@ def main():
                     output = model(input_tensor)
                     predicted_class = torch.argmax(output, dim=1).item()
                     print(f"🖼️ Predicted class: {classes[predicted_class]}")
+                    extracted_text = extract_text_from_image(screenshot)
+                    groq_response = send_to_groq(extracted_text,predicted_class)
+                    print(groq_response)
                 time.sleep(0.2)  
                 
 
