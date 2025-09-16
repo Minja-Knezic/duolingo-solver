@@ -1,6 +1,5 @@
-path: C:/Minja/Projects/Duolingo/box_model/box_training
-train: images/train
-val: images/val
+train: box_training/images/train
+val: box_training/images/val
 
 names:
   0: type_sentence_sentence 

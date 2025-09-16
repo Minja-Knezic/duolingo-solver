@@ -16,6 +16,8 @@ from classifier.cnn_model import SimpleCNN
 
 from dotenv import load_dotenv
 
+from ultralytics import YOLO
+
 
 # === CONFIG ===
 save_folder = "screenshots"
@@ -155,12 +157,32 @@ def main():
                 model.load_state_dict(torch.load("classifier/duolingo_cnn.pth"))
                 model.eval()
                 
+                yolo_model = YOLO("yolov8n.pt")  # Update with your YOLO model path
+               
+                # Show all crops
+
+                
                 classes = ['choose words', 'fill blank', 'select meaning', 'type sentence']  
                 with torch.no_grad():
                     output = model(input_tensor)
                     predicted_class = torch.argmax(output, dim=1).item()
                     print(f"🖼️ Predicted class: {classes[predicted_class]}")
-                    extracted_text = extract_text_from_image(screenshot)
+
+                    img_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+                    results = yolo_model(img_cv)
+                    boxes = results[0].boxes.xyxy.cpu().numpy()
+
+                    
+                    
+                    cropped_images = []
+                    for i, box in enumerate(boxes):
+                        x1, y1, x2, y2 = map(int, box)
+                        crop = img_cv[y1:y2, x1:x2]
+                        cropped_images.append(crop)
+                        extracted_text = extract_text_from_image(crop)
+                        print(f"📝 Extracted text: {extracted_text}")
+
+                   
                     groq_response = send_to_groq(extracted_text,predicted_class)
                     print(groq_response)
                 time.sleep(0.2)  
