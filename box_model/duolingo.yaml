@@ -1,16 +1,12 @@
-path: C:/Minja/Projects/Duolingo/box_model/training_data
+path: C:/Minja/Projects/Duolingo/box_model/box_training
 train: images/train
 val: images/val
 
 names:
-  0: pick_question
-  1: pick_option
-  2: blank_question
-  3: blank_answer
-  4: blank_blank
-  5: meaning_word
-  6: meaning_option
-  7: sentence_sentence
-  15: type_sentence_sentence
-  15: select_meaning_word
-  16: select_meaning_option
+  0: type_sentence_sentence 
+  1: select_meaning_word
+  2: select_meaning_option
+  3: fill_blank_sentence
+  4: fill_blank_add
+  5: choose_word_question
+  6: choose_word_option

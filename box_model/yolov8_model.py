@@ -8,7 +8,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 project_path = os.path.join(script_dir, "runs")
 
 model.train(
-    data="C:/Minja/Projects/Duolingo/box_model/duolingo.yaml",
+    data="D:/Projects/duolingo-solver/box_model/duolingo.yaml",
     epochs=10,
     imgsz=416,
     batch=8,   
