@@ -11,3 +11,6 @@ names:
   5: meaning_word
   6: meaning_option
   7: sentence_sentence
+  15: type_sentence_sentence
+  15: select_meaning_word
+  16: select_meaning_option
