@@ -168,25 +168,26 @@ def main():
                     predicted_class = torch.argmax(output, dim=1).item()
                     print(f"🖼️ Predicted class: {classes[predicted_class]}")
 
-                    img_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-                    results = yolo_model(img_cv)
-                    boxes = results[0].boxes.xyxy.cpu().numpy()
-
-                    
-                    
-                    cropped_images = []
-                    for i, box in enumerate(boxes):
-                        x1, y1, x2, y2 = map(int, box)
-                        crop = img_cv[y1:y2, x1:x2]
-                        cropped_images.append(crop)
-                        extracted_text = extract_text_from_image(crop)
-                        print(f"📝 Extracted text: {extracted_text}")
-
-                   
+                    ##img_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+                    ##results = yolo_model(img_cv)
+                    ##boxes = results[0].boxes.xyxy.cpu().numpy()
+                    extracted_text = extract_text_from_image(screenshot)
+                    print(f"📝 Extracted text: {extracted_text}")
                     groq_response = send_to_groq(extracted_text,predicted_class)
                     print(groq_response)
-                time.sleep(0.2)  
-                
+                    
+                    
+                    ##cropped_images = []
+                    ##for i, box in enumerate(boxes):
+                    ##   x1, y1, x2, y2 = map(int, box)
+                    ##    crop = img_cv[y1:y2, x1:x2]
+                    ##    cropped_images.append(crop)
+                    ##    extracted_text = extract_text_from_image(crop)
+                    ##   print(f"📝 Extracted text: {extracted_text}")
+                    ##    groq_response = send_to_groq(extracted_text,predicted_class)
+                    ##    print(groq_response)
+                    time.sleep(0.2)  
+
 
             elif event.name == exit_hotkey.lower():
                 print("🔴 Exiting...")
@@ -198,6 +199,6 @@ def main():
                 print(f"✅ New region selected: {region}")
 
 
-
+    
 if __name__ == "__main__":
     main()
